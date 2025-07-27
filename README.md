@@ -21,7 +21,7 @@ Alternatively, the installation of [`PDB-REDO/dssp`](https://github.com/PDB-REDO
 `sudo apt-get install dssp`
 
 Depending on the version of Ubuntu different version of the dssp can be installed. 
-> **Please note the following limitations to work with GEODES+PDB-REDO/dssp**: the output should be generated in DSSP legacy format, as this one is suppoerted by Biopython. Additionally, the example files from this repository might produce an error when processed by PDB-REDO/dssp due to formatting issues. However, if formatted strictly, the files can be used with GEODES. It is planned to refactor the GEODES code to accept mmCIF format according to the best practices.
+> **Please note the following limitations to work with GEODES+PDB-REDO/dssp**: the output should be generated in DSSP legacy format, as this one is suppoerted by Biopython. Additionally, the example files from this repository might produce an error when processed by PDB-REDO/dssp due to formatting issues (can be fixed manually). It is planned to refactor the GEODES code to accept mmCIF format according to the best practices.
 
 4. Additionally one may need KPAX software for providing user settings for protein helices borders: http://kpax.loria.fr/
 
