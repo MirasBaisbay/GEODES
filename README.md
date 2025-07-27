@@ -3,23 +3,29 @@ This repository contains **GEODES** Python package. This tool is based upon the 
 
 
 ## Installation and pre-requisites
-The libraries that are necessary for using GEODES can be installed by downloading this repository and running:
+
+1. It is recommended to install the GEODES code into a virtual environment:
+
+`conda create -n geodes python-3.10 boost=1.73`
+
+2. Python libraries that are necessary for using GEODES can be installed by running:
 
 `pip install -r requirements.txt `
 
-Several descriptors also require DSSP module, this can be done using:
+3. Several descriptors also require DSSP, this can be done using:
 
 `conda install salilab::dssp`
 
-The alternative installation using:
+Alternatively, the installation of [`PDB-REDO/dssp`](https://github.com/PDB-REDO/dssp) can be done using:
 
 `sudo apt-get install dssp`
 
-should be chosen with caution as currently the clean installation of DSSP 4.0.4 (intended for Ubuntu 22.04) does not work properly. It might be working on other versions though.
+Depending on the version of Ubuntu different version of the dssp can be installed. 
+> Please note that for examples used in this work the legacy PDB format had been utilized and the files had been prepared with Schrodinger 2020-3, and REDO dssp version doesn't properly handle this files. Additionally, in the code Biopython is used for working with DSSP legacy output, so the CIF output of PDB-REDO is not supported for now. However, it is planned to switch the code to working with mmCIF format according to the best practices.
 
-Additionally one may need KPAX software for providing user settings for protein helices borders: http://kpax.loria.fr/
+4. Additionally one may need KPAX software for providing user settings for protein helices borders: http://kpax.loria.fr/
 
-GEODES package can be installed by running this command from the root of the repository:
+5. Finally, GEODES package can be installed by running this command from the root of the repository:
 
 `pip install .`
 
