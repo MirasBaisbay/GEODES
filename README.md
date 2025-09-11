@@ -6,7 +6,7 @@ This repository contains **GEODES** Python package. This tool is based upon the 
 
 1. It is recommended to install the GEODES code into a virtual environment:
 
-`conda create -n geodes python-3.10 boost=1.73`
+`conda create -n geodes python=3.10 boost=1.73`
 
 2. Python libraries that are necessary for using GEODES can be installed by running:
 
@@ -21,7 +21,7 @@ Alternatively, the installation of [`PDB-REDO/dssp`](https://github.com/PDB-REDO
 `sudo apt-get install dssp`
 
 Depending on the version of Ubuntu different version of the dssp can be installed. 
-> **Please note the following limitations to work with GEODES+PDB-REDO/dssp**: the output should be generated in DSSP legacy format, as this one is suppoerted by Biopython. Additionally, the example files from this repository might produce an error when processed by PDB-REDO/dssp due to formatting issues (can be fixed manually). It is planned to refactor the GEODES code to accept mmCIF format according to the best practices.
+> **Please note the following limitations to work with GEODES+PDB-REDO/dssp**: the output should be generated in DSSP legacy format, as this one is supported by Biopython. Additionally, the example files from this repository might produce an error when processed by PDB-REDO/dssp due to formatting issues (can be fixed manually). It is planned to refactor the GEODES code to accept mmCIF format according to the best practices.
 
 4. Additionally one may need KPAX software for providing user settings for protein helices borders: http://kpax.loria.fr/
 
