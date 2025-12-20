@@ -23,7 +23,7 @@ RUN echo "Setting up DSSP..." && \
 # 3. Install KPAX (Handles local tarball)
 WORKDIR /tmp/kpax
 COPY kpax.tar.gz .
-RUN tar -xzvf kpax.tar.gz --strip-components=1 && \
+RUN tar -xzvf kpax.tar.gz --no-same-owner --strip-components=1 && \
     if [ -f Makefile ]; then make; else echo "No Makefile found, assuming binary..."; fi && \
     find . -type f \( -name "Kpax" -o -name "kpax" \) -exec cp {} /usr/local/bin/kpax \; && \
     chmod +x /usr/local/bin/kpax
