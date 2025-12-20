@@ -1,51 +1,38 @@
-# GEODES 
-This repository contains **GEODES** Python package. This tool is based upon the collection of Python modules for calculating various geometrical descriptors for proteins given their structure as a PDB-file and outputting them in a form of a dataframe or CSV-table.
+---
+title: GEODES - Protein Geometry Descriptor Calculator
+emoji: 🧬
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+license: mit
+app_port: 8501
+---
 
+# GEODES: Geometric Descriptors for Protein Structures
 
-## Installation and pre-requisites
+GEODES is a bioinformatics tool for calculating geometric descriptors from protein structures (PDB files).
 
-1. It is recommended to install the GEODES code into a virtual environment:
-
-`conda create -n geodes python=3.10 boost=1.73`
-
-2. Python libraries that are necessary for using GEODES can be installed by running:
-
-`pip install -r requirements.txt `
-
-3. Several descriptors also require DSSP, this can be done using:
-
-`conda install salilab::dssp`
-
-Alternatively, the installation of [`PDB-REDO/dssp`](https://github.com/PDB-REDO/dssp) can be done using:
-
-`sudo apt-get install dssp`
-
-Depending on the version of Ubuntu different version of the dssp can be installed. 
-> **Please note the following limitations to work with GEODES+PDB-REDO/dssp**: the output should be generated in DSSP legacy format, as this one is supported by Biopython. Additionally, the example files from this repository might produce an error when processed by PDB-REDO/dssp due to formatting issues (can be fixed manually). It is planned to refactor the GEODES code to accept mmCIF format according to the best practices.
-
-4. Additionally one may need KPAX software for providing user settings for protein helices borders: http://kpax.loria.fr/
-
-5. Finally, GEODES package can be installed by running this command from the root of the repository:
-
-`pip install .`
+## Features
+- Calculate helix geometry descriptors
+- Charge clamp analysis
+- Interactive 3D structure visualization
+- Batch processing support
 
 ## Usage
+1. Upload your PDB file(s)
+2. Configure helix boundaries and charge clamps
+3. Run analysis
+4. Download results as CSV
 
-To see an example of usage of this package, see [`usage_example.ipynb`](/examples/usage_example.ipynb)
+## Citation
+If you use GEODES in your research, please cite:
+[Add your citation here]
 
-To see an example of result analysis, see[`analysis_example.ipynb`](/examples/geodes-analysis/analysis_example.ipynb)
+## Requirements
+- Python 3.10
+- DSSP (for secondary structure)
+- Boost libraries
+- KPAX
 
-
-## Estimated calculation time
-To run calculations in non-parallel mode, it takes ~3 min for 100 PDB files using Ubuntu 22.04 on virtual machine with 2048 MB RAM and 4 CPUs (cores).
-
-## Authors
-- Karina Pats, Visiting Research Assistant, Nazarbayev University; PhD candidate, ITMO University;
-- Igor Glukhov, MSc student (2022-2023), ITMO University
-
-
-## Acknowledgements
-- Dr. Ferdinand Molnár, Associate Professor, Nazarbayev University
-- Dr. Marie-Dominique Devignes, Lorraine Research Laboratory in Computer Science and its Applications, University of Lorraine
-- Stepan Petrosyan, Bioinformatics Institute student (2019/2020)
-- Maria Mamaeva, Bioinformatics Institute student (2019/2020)
+All dependencies are included in the Docker container.

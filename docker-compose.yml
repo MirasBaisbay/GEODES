@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  geodes:
+    build: .
+    container_name: geodes_ui
+    ports:
+      - "8501:8501"
+    volumes:
+      # Mapping src allows you to debug python code without rebuilding
+      - ./src:/app/src
+      # Mapping configs allows editing descriptors list externally
+      - ./configs:/app/configs
+    restart: unless-stopped
