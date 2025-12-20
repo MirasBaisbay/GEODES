@@ -42,4 +42,4 @@ RUN pip install .
 
 RUN mkdir -p /app/data_temp/input /app/data_temp/output
 EXPOSE 8501
-CMD ["streamlit", "run", "app.py", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "app.py", "--server.address=0.0.0.0", "--server.port=8501", "--server.headless=true", "--server.enableCORS=false", "--server.enableXsrfProtection=false"]
