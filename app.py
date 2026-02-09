@@ -46,6 +46,22 @@ def clean_pdb_for_dssp(input_path, output_path):
     
     return output_path
 
+# Define species-specific configurations
+SPECIES_CONFIG = {
+    "Human": {
+        "href": [[127,142], [149,152], [218, 222], [226,246], [257,265], [268, 278], [298,302], [308,322], [328,338], [350,369], [379,396], [397,406], [411,413], [417,423]],
+        "clamps": [246, 264, 420]
+    },
+    "Rat": {
+        "href": [[127,142], [149,152], [222,242], [253,262], [263, 273], [294,298], [304,318], [324,334], [346,365], [376,392], [393,402], [405,409], [413,418]],
+        "clamps": [242, 260, 416]
+    },
+    "Zebrafish": {
+        "href": [[159,174], [181, 184], [254,274], [285, 293], [295,303], [326, 330], [336,350], [356,366], [378,397], [405,422], [423, 432], [435,439], [443, 447]],
+        "clamps": [274, 292, 446]
+    }
+}
+
 yaml_config = load_default_config()
 
 st.set_page_config(page_title="GEODES: Protein Geometry", layout="wide", page_icon="🧬")
@@ -56,17 +72,31 @@ with st.sidebar:
     
     st.divider()
     
-    st.header("2. Protein Definition")
-    st.info("Defaults are set for hVDR (per the GEODES paper). Adjust for other proteins.")
+    st.header("2. Species Selection")
+    species = st.radio(
+        "Select VDR Species:",
+        options=["Human", "Rat", "Zebrafish"],
+        index=0,
+        help="Choose the species to automatically configure helix boundaries and charge clamps"
+    )
     
-    # Defaults from usage_example.py
-    default_href = "[[127,142], [149,152], [218,222], [226,246], [257,265], [268, 278], [298,302], [308,322], [328,338], [350,369], [379,396], [397,406], [411,413], [417,423]]"
+    # Get configuration for selected species
+    selected_config = SPECIES_CONFIG[species]
+    
+    st.divider()
+    
+    st.header("3. Protein Definition")
+    st.info(f"Settings configured for **{species} VDR**. Adjust if needed.")
+    
+    # Convert to string for display
+    default_href = str(selected_config["href"])
+    default_clamps = str(selected_config["clamps"])
+    
     st.markdown("**Helix Boundaries (`href`)**")
     href_input = st.text_area("Enter list of [start, end] residues:", value=default_href, height=150)
 
     st.markdown("**Charge Clamps**")
     enable_clamps = st.checkbox("Calculate Charge Clamp Descriptors?", value=True)
-    default_clamps = "[246, 264, 420]"
     clamps_input = st.text_input("Residue Indices:", value=default_clamps, disabled=not enable_clamps)
 
 # Main UI Logic
@@ -74,6 +104,9 @@ if uploaded_files:
     
     # --- Visualization Section ---
     st.subheader("👁️ 3D Structure Preview")
+    
+    # Display current species selection
+    st.caption(f"**Currently configured for: {species} VDR**")
     
     # Select specific file to view from the list of uploads
     file_names = [f.name for f in uploaded_files]
@@ -120,7 +153,7 @@ if uploaded_files:
 
     # --- Analysis Section ---
     if st.button("🚀 Run Analysis", type="primary", use_container_width=True):
-        with st.spinner("Processing PDB files and running analysis..."):
+        with st.spinner(f"Processing PDB files for {species} VDR analysis..."):
             try:
                 # Setup Temp Dirs
                 base_path = Path("/app/data_temp") if os.path.exists("/app") else Path("data_temp")
@@ -170,14 +203,14 @@ if uploaded_files:
                 run_config = {'descriptors': yaml_config.get('descriptors', [])}
 
                 # Run GEODES
-                st.info("🧬 Running GEODES analysis...")
+                st.info(f"🧬 Running GEODES analysis for {species} VDR...")
                 calculator = DescCalculator(href_parsed, clamps_parsed, config=run_config)
                 
                 # The calculation step that triggers the DSSP call
                 # Note: We pass the 'input' folder where the CLEANED files are
                 df_result = calculator.calc_all(str(input_dir) + "/", save_to_csv=False, parallel=False)
                 
-                st.success("✅ Analysis complete!")
+                st.success(f"✅ Analysis complete for {species} VDR!")
                 st.dataframe(df_result)
                 
                 # Provide download option
@@ -185,7 +218,7 @@ if uploaded_files:
                 st.download_button(
                     label="📥 Download Results as CSV",
                     data=csv,
-                    file_name="geodes_results.csv",
+                    file_name=f"geodes_results_{species.lower()}.csv",
                     mime="text/csv"
                 )
                 
@@ -198,12 +231,14 @@ else:
     st.info("👈 Upload PDB file(s) using the sidebar to get started")
     
     # Show example
-    with st.expander("ℹ️ Example Configuration"):
+    with st.expander("ℹ️ Species Configuration"):
         st.markdown("""
-        **Default settings are configured for hVDR (Vitamin D Receptor)**
+        **Pre-configured settings for VDR across three species:**
         
-        - **Helix Boundaries**: Define the α-helix regions in your protein
-        - **Charge Clamps**: Specific residues that form charge interactions
+        - **Human VDR**: Default helix boundaries and charge clamps (246, 264, 420)
+        - **Rat VDR**: Adjusted boundaries and charge clamps (242, 260, 416)
+        - **Zebrafish VDR**: Species-specific boundaries and charge clamps (274, 292, 446)
         
-        Adjust these values based on your protein's structure and the residues you want to analyze.
+        Select the species in the sidebar, and the helix boundaries and charge clamps will automatically update. 
+        You can still manually adjust these values if needed.
         """)
