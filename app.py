@@ -294,6 +294,7 @@ if species_uploads:
 
                         pca_df = pd.DataFrame(pca_result, columns=[f'PC{i+1}' for i in range(n_components)])
                         pca_df[color_col] = color_values
+                        pca_df['Structure'] = df_result.loc[df_pca_input.index, 'prot_name'].values
 
                         # Explained variance
                         var_df = pd.DataFrame({
@@ -310,7 +311,7 @@ if species_uploads:
                         col_pca1, col_pca2 = st.columns(2)
                         with col_pca1:
                             fig_2d = px.scatter(pca_df, x='PC1', y='PC2',
-                                                color=color_col, opacity=0.8,
+                                                color=color_col, hover_name='Structure', opacity=0.8,
                                                 title='PCA - 2D Projection')
                             fig_2d.update_traces(marker=dict(size=10))
                             fig_2d.update_layout(template='simple_white')
@@ -319,7 +320,7 @@ if species_uploads:
                         with col_pca2:
                             if n_components >= 3:
                                 fig_3d = px.scatter_3d(pca_df, x='PC1', y='PC2', z='PC3',
-                                                       color=color_col, opacity=0.8,
+                                                       color=color_col, hover_name='Structure', opacity=0.8,
                                                        title='PCA - 3D Projection')
                                 fig_3d.update_traces(marker=dict(size=5))
                                 fig_3d.update_layout(template='simple_white')
