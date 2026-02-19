@@ -92,6 +92,84 @@ SPECIES_CONFIG = {
 
 yaml_config = load_default_config()
 
+# ---------------------------------------------------------------------------
+# APP DESCRIPTION
+# ---------------------------------------------------------------------------
+#
+# GEODES – Geometric Descriptors for Protein Structures
+# ======================================================
+# GEODES calculates a comprehensive set of geometric descriptors from protein
+# 3D structure files (PDB format).  It is designed for comparative analysis of
+# the Vitamin D Receptor (VDR) ligand-binding domain across multiple species,
+# but the descriptor framework generalises to any alpha-helical protein.
+#
+# What is VDR?
+# ------------
+# The Vitamin D Receptor (VDR) is a nuclear hormone receptor that mediates the
+# biological effects of calcitriol (1α,25-dihydroxyvitamin D₃).  Ligand
+# binding triggers conformational rearrangements in the ligand-binding domain
+# (LBD) that allow co-activator recruitment and gene activation.  Because VDR
+# is conserved across vertebrates with slightly different helix topologies,
+# comparing structures from multiple species requires descriptors that are
+# independent of helix count.
+#
+# What is PCA?
+# ------------
+# Principal Component Analysis (PCA) is an unsupervised linear
+# dimensionality-reduction technique.  GEODES standardises all numeric
+# descriptors (zero mean, unit variance) and projects the structures onto the
+# top 2-3 principal components so that conformational variation can be
+# visualised in a 2D or 3D scatter plot.
+#
+# In single-species mode the full descriptor set is used (DSSP columns are
+# delta-transformed: deviation from the reference helix boundaries).
+# In cross-species mode only species-invariant descriptors are used (SSE
+# content, charge-clamp geometry, COM-clamp distances) so that species with
+# different helix counts can be compared on equal footing.
+#
+# Descriptors calculated
+# ----------------------
+# 1.  prot_hel_dist        – Euclidean distance from the protein centre-of-mass
+#                            (COM) to each helix COM.
+# 2.  pairwise_sep_dist    – Pairwise distances between all helix COMs.
+# 3.  com_calpha_angles    – Angle at each helix COM between the protein COM
+#                            and the helix Cα endpoint vectors.
+# 4.  len_of_hel           – Helix length: distance between the first and last
+#                            Cα atoms of each reference helix.
+# 5.  angles_between_hel   – Angle between orientation vectors of all helix
+#                            pairs.
+# 6.  com_clamp            – Distance from the protein COM to each of the three
+#                            charge-clamp Cα atoms.
+# 7.  charge_clamp_dist    – Pairwise distances among the three charge-clamp
+#                            residues.
+# 8.  charge_clamp_angles  – Angles of the triangle formed by the three
+#                            charge-clamp Cα atoms.
+# 9.  acc_per_hel          – Solvent-accessible surface area per helix (Å²)
+#                            from DSSP.
+# 10. dssp_hel             – DSSP-predicted start and end residue for each
+#                            helix.
+# 11. sse_content          – Fraction of residues in each of 8 SSE classes
+#                            (H helix, B beta-bridge, E strand, G 3-10 helix,
+#                            I pi-helix, T turn, S bend, other).
+# 12. dssp_extra           – Number of residues outside the reference helix
+#                            boundaries as assigned by DSSP.
+#
+# Species pre-configurations
+# --------------------------
+# Human    (Homo sapiens)      – 14 helices, charge clamps 246 / 264 / 420
+# Rat      (Rattus norvegicus) – 13 helices, charge clamps 242 / 260 / 416
+# Zebrafish (Danio rerio)      – 13 helices, charge clamps 274 / 292 / 446
+#
+# Workflow
+# --------
+# 1. Upload one or more PDB files via the sidebar (per-species uploaders).
+# 2. Each file is cleaned for mkdssp v4+ compatibility (HEADER + ATOM + END).
+# 3. DescCalculator runs all enabled descriptor modules on every file.
+# 4. Results from all species are concatenated into a single DataFrame.
+# 5. PCA is applied and interactive 2D/3D scatter plots are displayed.
+# 6. The full descriptor matrix can be downloaded as CSV.
+# ---------------------------------------------------------------------------
+
 st.set_page_config(page_title="GEODES: Protein Geometry", layout="wide", page_icon="🧬")
 
 # --- Sidebar: Per-species file uploaders ---
@@ -335,17 +413,110 @@ if species_uploads:
                     import traceback
                     st.code(traceback.format_exc())
 else:
+    st.title("GEODES: Geometric Descriptors for Protein Structures")
+    st.markdown(
+        "GEODES computes a comprehensive set of geometric and secondary-structure "
+        "descriptors from protein PDB files for comparative structural analysis. "
+        "It is pre-configured for the **Vitamin D Receptor (VDR)** ligand-binding "
+        "domain across three vertebrate species."
+    )
     st.info("Upload PDB file(s) using the sidebar to get started. You can upload structures for one or more species.")
+
+    st.divider()
+
+    col_about1, col_about2 = st.columns(2)
+
+    with col_about1:
+        st.subheader("What is VDR?")
+        st.markdown("""
+The **Vitamin D Receptor (VDR)** is a nuclear hormone receptor that mediates the
+biological effects of calcitriol (1α,25-dihydroxyvitamin D₃).  Upon ligand binding,
+the VDR ligand-binding domain (LBD) undergoes conformational changes that enable
+co-activator recruitment and activation of vitamin D target genes.
+
+Three key **charge-clamp residues** (one Lys, one Arg, one Glu) form a molecular
+"clamp" that anchors the LXXLL helix of co-activator proteins.  GEODES tracks the
+geometry of these residues as a primary readout of receptor activation state.
+        """)
+
+        st.subheader("What is PCA?")
+        st.markdown("""
+**Principal Component Analysis (PCA)** is an unsupervised dimensionality-reduction
+method that projects high-dimensional descriptor data onto a small number of axes
+(principal components, PCs) that explain the most variance.
+
+GEODES standardises all descriptors before PCA so that features with different
+physical units contribute equally.  The resulting 2D and 3D scatter plots reveal:
+
+- **Conformational clusters** within a single MD ensemble
+- **Species differences** between human, rat, and zebrafish VDR
+- **Outlier structures** that deviate from the main population
+        """)
+
+    with col_about2:
+        st.subheader("Descriptors Calculated")
+        st.markdown("""
+| # | Descriptor | What it measures |
+|---|---|---|
+| 1 | **Protein–helix COM distance** | Distance from protein centre-of-mass to each helix COM |
+| 2 | **Pairwise helix separation** | Euclidean distance between all pairs of helix COMs |
+| 3 | **COM–helix Cα angles** | Angle at each helix COM between the protein COM and the Cα endpoints |
+| 4 | **Helix length** | End-to-end Cα distance for each reference helix |
+| 5 | **Pairwise helix angles** | Angle between orientation vectors of all helix pairs |
+| 6 | **COM–clamp distances** | Distance from protein COM to each charge-clamp Cα |
+| 7 | **Charge-clamp distances** | Pairwise distances among the three charge-clamp residues |
+| 8 | **Charge-clamp angles** | Triangle angles formed by the three charge-clamp Cα atoms |
+| 9 | **Solvent accessibility / helix** | DSSP accessible surface area per helix (Å²) |
+| 10 | **DSSP helix endpoints** | DSSP-predicted start/end residue for each helix |
+| 11 | **SSE content** | Fraction of residues in 8 secondary-structure classes |
+| 12 | **Extra-helical residues** | Residues outside reference helix boundaries (DSSP) |
+        """)
+
+    st.divider()
+
+    with st.expander("How It Works – Step-by-Step Workflow"):
+        st.markdown("""
+**1. Upload PDB files**
+Use the per-species uploaders in the sidebar.  You can upload one or many files
+per species.  Files from multiple species can be analysed simultaneously.
+
+**2. PDB cleaning**
+Each file is stripped down to `HEADER + ATOM + END` records for full compatibility
+with mkdssp v4+.  This step removes non-standard records that can cause DSSP to
+fail.
+
+**3. Descriptor calculation**
+`DescCalculator` iterates over every PDB file and runs all descriptor modules
+enabled in `configs/desc_config.yml`.  Results for each file are merged into a
+single row; rows from all files are concatenated into a DataFrame.
+
+**4. Results table**
+The full descriptor matrix is displayed and can be downloaded as a CSV file.
+
+**5. PCA analysis**
+- *Single-species*: all numeric descriptors are used.  DSSP endpoint columns are
+  delta-transformed (deviation from the reference helix boundaries) so that the
+  absolute residue numbers do not dominate.
+- *Cross-species*: only species-invariant descriptors are used (SSE content,
+  charge-clamp distances/angles, COM-clamp distances) so that species with
+  different helix counts can be compared on the same axes.
+- Constant columns (zero variance) are removed before PCA.
+- All remaining columns are standardised (mean = 0, variance = 1).
+- The top 2–3 principal components are displayed as interactive 2D and 3D
+  scatter plots with an explained-variance bar chart.
+        """)
 
     with st.expander("Species Configuration"):
         st.markdown("""
-        **Pre-configured VDR settings for three species:**
+**Pre-configured VDR settings for three species:**
 
-        - **Human VDR**: 14 helices, charge clamps at residues 246, 264, 420
-        - **Rat VDR**: 13 helices, charge clamps at residues 242, 260, 416
-        - **Zebrafish VDR**: 13 helices, charge clamps at residues 274, 292, 446
+| Species | Helices | Charge clamp residues |
+|---|---|---|
+| **Human** (*Homo sapiens*) | 14 | 246, 264, 420 |
+| **Rat** (*Rattus norvegicus*) | 13 | 242, 260, 416 |
+| **Zebrafish** (*Danio rerio*) | 13 | 274, 292, 446 |
 
-        Upload structures to the corresponding species uploader in the sidebar.
-        When multiple species are uploaded, PCA uses species-invariant descriptors
-        (SSE content, charge clamps) and colors points by species.
+Upload structures to the corresponding species uploader in the sidebar.
+When multiple species are uploaded, PCA uses species-invariant descriptors
+(SSE content, charge clamps) and colours points by species.
         """)
