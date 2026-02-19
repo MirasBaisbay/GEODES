@@ -97,6 +97,8 @@ def charge_clamp_dist_to_pandas(pdb_file, clamp_resid, protein_name=None, **kwar
             cl_dist.append(clamp_dist[elem])
     else:
         cl_dist.extend([float('nan')] * 3)
+    while len(cl_dist) < len(cols_cl_dist):
+        cl_dist.append(float('nan'))
     df_cl_dist = pd.DataFrame([cl_dist], columns=cols_cl_dist)
     #df_cl_dist = pd.concat([df_cl_dist, pd.Series(cl_dist, index=cols_cl_dist[0:len(cl_dist)])], ignore_index=True)
     return df_cl_dist

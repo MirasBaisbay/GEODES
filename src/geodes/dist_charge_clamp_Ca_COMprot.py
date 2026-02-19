@@ -97,6 +97,8 @@ def COM_clamp_to_pandas(pdb_file, clamp_resid, protein_name=None, **kwargs):
             data_clamps.append(dist)
     else:
         data_clamps.extend([float('nan')] * 3)
+    while len(data_clamps) < len(cols_comclampdist):
+        data_clamps.append(float('nan'))
     df_clamps = pd.DataFrame([data_clamps], columns=cols_comclampdist)
     #df_clamps = pd.concat([df_clamps, pd.Series(data_clamps, index=cols_comclampdist[0:len(data_clamps)])], ignore_index=True)
     return df_clamps

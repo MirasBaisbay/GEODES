@@ -92,6 +92,8 @@ def angles_between_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
                 data_cos.append(angle)
     else:
         data_cos.extend([float('nan')] * (len(cols_cos) - 1))
+    while len(data_cos) < len(cols_cos):
+        data_cos.append(float('nan'))
     df_cos = pd.DataFrame([data_cos], columns=cols_cos)
     #df_cos = pd.concat([df_cos, pd.Series(data_cos, index=cols_cos[0:len(data_cos)])], ignore_index=True)
     return df_cos

@@ -94,6 +94,8 @@ def len_of_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
             data_lens.append(lens)
     else:
         data_lens.extend([float('nan')] * len(ref))
+    while len(data_lens) < len(cols_len):
+        data_lens.append(float('nan'))
     df_len = pd.DataFrame([data_lens], columns=cols_len)
     #df_len = pd.concat([df_len, pd.Series(data_lens, index=cols_len[0:len(data_lens)])], ignore_index=True)
     return df_len
