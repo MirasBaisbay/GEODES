@@ -3,7 +3,12 @@ import ast
 import yaml
 import os
 import shutil
+import numpy as np
+import pandas as pd
+import plotly.express as px
 from pathlib import Path
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 from geodes import DescCalculator
 
 # Function to load default config
@@ -45,6 +50,20 @@ def clean_pdb_for_dssp(input_path, output_path):
         f.writelines(cleaned_lines)
     
     return output_path
+
+def delta_transform(dssp_values, ref_flat):
+    """
+    Apply delta transform to DSSP columns.
+    For even indices (helix starts): ref - value
+    For odd indices (helix ends): value - ref
+    """
+    result = dssp_values.copy()
+    for i in range(len(result)):
+        if i % 2 == 0:
+            result.iloc[i] = ref_flat[i] - result.iloc[i]
+        else:
+            result.iloc[i] = result.iloc[i] - ref_flat[i]
+    return result
 
 # Define species-specific configurations
 SPECIES_CONFIG = {
@@ -221,7 +240,79 @@ if uploaded_files:
                     file_name=f"geodes_results_{species.lower()}.csv",
                     mime="text/csv"
                 )
-                
+
+                # --- PCA Analysis Section ---
+                st.divider()
+                st.subheader("📊 PCA Analysis")
+
+                df_numeric = df_result.drop(columns=['prot_name']).select_dtypes(include=[np.number])
+                df_clean = df_numeric.dropna(axis=0, how='any')
+
+                if len(df_clean) < 2:
+                    st.warning("PCA requires at least 2 structures with complete data. Some structures may have failed calculations.")
+                else:
+                    # Delta transform on DSSP columns
+                    dssp_cols = [c for c in df_clean.columns if c.startswith('DSSP')]
+                    if dssp_cols:
+                        ref_flat = np.array(href_parsed).flatten()
+                        if len(ref_flat) == len(dssp_cols):
+                            df_clean[dssp_cols] = df_clean[dssp_cols].apply(
+                                lambda row: delta_transform(row, ref_flat), axis=1
+                            )
+
+                    # Remove constant columns (zero variance)
+                    df_clean = df_clean.loc[:, df_clean.std() > 0]
+
+                    # Scale
+                    scaler = StandardScaler()
+                    scaled = scaler.fit_transform(df_clean)
+
+                    # PCA
+                    max_components = min(3, len(df_clean), len(df_clean.columns))
+                    n_components = st.slider("Number of PCA components", 2, max_components, max_components)
+
+                    pca = PCA(n_components=n_components)
+                    pca_result = pca.fit_transform(scaled)
+
+                    # Build PCA DataFrame
+                    pca_df = pd.DataFrame(pca_result, columns=[f'PC{i+1}' for i in range(n_components)])
+                    valid_indices = df_clean.index
+                    pca_df['Structure'] = df_result.loc[valid_indices, 'prot_name'].values
+
+                    # Explained variance bar chart
+                    var_df = pd.DataFrame({
+                        'Component': [f'PC{i+1}' for i in range(n_components)],
+                        'Explained Variance (%)': pca.explained_variance_ratio_ * 100
+                    })
+                    fig_var = px.bar(var_df, x='Component', y='Explained Variance (%)',
+                                     title='Explained Variance per Component',
+                                     text_auto='.1f')
+                    fig_var.update_layout(template='simple_white')
+                    st.plotly_chart(fig_var, use_container_width=True)
+
+                    # 2D + 3D plots side by side
+                    col_pca1, col_pca2 = st.columns(2)
+                    with col_pca1:
+                        fig_2d = px.scatter(pca_df, x='PC1', y='PC2',
+                                            color='Structure', opacity=0.8,
+                                            title='PCA — 2D Projection')
+                        fig_2d.update_traces(marker=dict(size=10))
+                        fig_2d.update_layout(template='simple_white')
+                        st.plotly_chart(fig_2d, use_container_width=True)
+
+                    with col_pca2:
+                        if n_components >= 3:
+                            fig_3d = px.scatter_3d(pca_df, x='PC1', y='PC2', z='PC3',
+                                                   color='Structure', opacity=0.8,
+                                                   title='PCA — 3D Projection')
+                            fig_3d.update_traces(marker=dict(size=5))
+                            fig_3d.update_layout(template='simple_white')
+                            st.plotly_chart(fig_3d, use_container_width=True)
+
+                    # Show PCA coordinates table
+                    with st.expander("PCA Coordinates"):
+                        st.dataframe(pca_df)
+
             except Exception as e:
                 st.error(f"❌ Analysis Error: {e}")
                 with st.expander("Show Detailed Error"):
