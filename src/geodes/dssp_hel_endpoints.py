@@ -196,7 +196,8 @@ def dssp_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
             data_dssp_hels.append(hel[1])
     else:
         data_dssp_hels.extend([float('nan')] * (2 * len(ref)))
-
+    while len(data_dssp_hels) < len(cols_dssp):
+        data_dssp_hels.append(float('nan'))
     df_dssp = pd.DataFrame([data_dssp_hels], columns=cols_dssp)
     #df_dssp = pd.concat([df_dssp, pd.Series(data_dssp_hels, index=cols_dssp[0:len(data_dssp_hels)])], ignore_index=True)
     return df_dssp
@@ -242,6 +243,8 @@ def dssp_extra_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
     if dssp_hels is not None:
         data_extra_hels.append(dssp_hels[1])
     else:
+        data_extra_hels.append(float('nan'))
+    while len(data_extra_hels) < len(cols_extra_res):
         data_extra_hels.append(float('nan'))
     df_extra = pd.DataFrame([data_extra_hels], columns=cols_extra_res)
     #df_extra = pd.concat([df_extra, pd.Series(data_extra_hels, index=cols_extra_res[0:len(data_extra_hels)])],

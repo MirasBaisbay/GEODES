@@ -97,6 +97,8 @@ def pairwise_sep_dist_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
                 data_pairseps.append(dist)
     else:
         data_pairseps.extend([float('nan')] * (len(cols_pairwise) - 1))
+    while len(data_pairseps) < len(cols_pairwise):
+        data_pairseps.append(float('nan'))
     df_pairseps = pd.DataFrame([data_pairseps], columns=cols_pairwise)
     #df_pairseps = pd.concat([df_pairseps, pd.Series(data_pairseps, index=cols_pairwise[0:len(data_pairseps)])],
     #                                ignore_index=True)
