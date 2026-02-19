@@ -111,6 +111,8 @@ def acc_per_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
     if acc_hels is not None:
         for acc in acc_hels:
             data_acc.append(acc_hels[acc])
+    else:
+        data_acc.extend([float('nan')] * len(ref))
 
     df_acc = pd.DataFrame([data_acc], columns=cols_acc)
     #df_acc = pd.concat([df_acc, pd.Series(data_acc, index=cols_acc[0:len(data_acc)])], ignore_index=True)

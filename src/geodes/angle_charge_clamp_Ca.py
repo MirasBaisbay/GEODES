@@ -97,6 +97,8 @@ def charge_clamp_angles_to_pandas(pdb_file, clamp_resid, protein_name=None, **kw
     if clamp_angle is not None:
         for elem in clamp_angle:
             cl_angle.append(clamp_angle[elem])
+    else:
+        cl_angle.extend([float('nan')] * (len(cols_cl_angle) - 1))
     df_cl_angles = pd.DataFrame([cl_angle], columns=cols_cl_angle)
     #df_cl_angles = pd.concat([df_cl_angles, pd.Series(cl_angle, index=cols_cl_angle[0:len(cl_angle)])], ignore_index=True)
     return df_cl_angles

@@ -88,6 +88,8 @@ def sse_content_to_pandas(pdb_file, protein_name=None, **kwargs):
     if sse is not None:
         for struct in sse:
             data_sse.append(sse[struct])
+    else:
+        data_sse.extend([float('nan')] * 8)
     df_sse = pd.DataFrame([data_sse], columns=cols_sse)
     #df_sse = pd.concat([df_sse, pd.Series(data_sse, index=cols_sse[0:len(data_sse)])], ignore_index=True)
     return df_sse

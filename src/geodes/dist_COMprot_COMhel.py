@@ -87,6 +87,8 @@ def prot_hel_dist_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
     if prothel is not None:
         for elem in prothel:
             data_prothel.append(elem)
+    else:
+        data_prothel.extend([float('nan')] * len(ref))
     #print(data_prothel)
     df_prothel = pd.DataFrame([data_prothel], columns=cols_protheldist)
     #df_prothel = pd.concat([df_prothel, pd.Series(data_prothel, index=cols_protheldist[0:len(data_prothel)])],
