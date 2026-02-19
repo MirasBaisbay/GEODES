@@ -93,6 +93,11 @@ def charge_clamp_angles_to_pandas(pdb_file, clamp_resid, protein_name=None, **kw
             print(f'{protein_name}: {e}')
         else:
             print(e)
+    except Exception as e:
+        if protein_name:
+            print(f'{protein_name}: {e}')
+        else:
+            print(e)
     cl_angle = [protein_name]
     if clamp_angle is not None:
         for elem in clamp_angle:

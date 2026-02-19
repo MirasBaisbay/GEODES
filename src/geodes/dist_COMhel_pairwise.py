@@ -89,6 +89,11 @@ def pairwise_sep_dist_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
             print(f'{protein_name}: {e}')
         else:
             print(e)
+    except Exception as e:
+        if protein_name:
+            print(f'{protein_name}: {e}')
+        else:
+            print(e)
 
     data_pairseps = [protein_name]
     if pairseps is not None:

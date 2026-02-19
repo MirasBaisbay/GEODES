@@ -90,6 +90,11 @@ def charge_clamp_dist_to_pandas(pdb_file, clamp_resid, protein_name=None, **kwar
             print(f'{protein_name}: {e}')
         else:
             print(e)
+    except Exception as e:
+        if protein_name:
+            print(f'{protein_name}: {e}')
+        else:
+            print(e)
 
     cl_dist = [protein_name]
     if clamp_dist is not None:
