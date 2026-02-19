@@ -90,6 +90,11 @@ def COM_clamp_to_pandas(pdb_file, clamp_resid, protein_name=None, **kwargs):
             print(f'{protein_name}: {e}')
         else:
             print(e)
+    except Exception as e:
+        if protein_name:
+            print(f'{protein_name}: {e}')
+        else:
+            print(e)
 
     data_clamps = [protein_name]
     if clamps is not None:

@@ -106,6 +106,11 @@ def acc_per_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
             print(f'{protein_name}: {e}')
         else:
             print(e)
+    except Exception as e:
+        if protein_name:
+            print(f'{protein_name}: {e}')
+        else:
+            print(e)
 
     data_acc = [protein_name]
     if acc_hels is not None:

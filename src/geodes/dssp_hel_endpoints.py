@@ -188,6 +188,11 @@ def dssp_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
             print(f'{protein_name}: {e}')
         else:
             print(e)
+    except Exception as e:
+        if protein_name:
+            print(f'{protein_name}: {e}')
+        else:
+            print(e)
 
     data_dssp_hels = [protein_name]
     if dssp_hels is not None:
@@ -234,6 +239,11 @@ def dssp_extra_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
             print('KeyError while calculating dssp')
 
     except ValueError as e:
+        if protein_name:
+            print(f'{protein_name}: {e}')
+        else:
+            print(e)
+    except Exception as e:
         if protein_name:
             print(f'{protein_name}: {e}')
         else:

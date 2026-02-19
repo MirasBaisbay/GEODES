@@ -83,6 +83,11 @@ def sse_content_to_pandas(pdb_file, protein_name=None, **kwargs):
             print(f'{protein_name}: {e}')
         else:
             print(e)
+    except Exception as e:
+        if protein_name:
+            print(f'{protein_name}: {e}')
+        else:
+            print(e)
 
     data_sse = [protein_name]
     if sse is not None:
