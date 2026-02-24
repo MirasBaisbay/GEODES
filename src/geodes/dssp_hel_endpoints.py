@@ -5,11 +5,11 @@ import pandas as pd
 from geodes import utils
 
 
-def _calc_dssp_hel(dssp, ref):
+def _calc_dssp_hel(dssp, ref, chain_id='A'):
     """Calculate differences with dssp module."""
 #     TODO: Split function into smaller functions
-    chainA = [key for key in dssp.keys() if key[0] == 'A']
-    helix_map = np.zeros([1, len(chainA)])
+    chain_keys = [key for key in dssp.keys() if key[0] == chain_id]
+    helix_map = np.zeros([1, len(chain_keys)])
     res_num = utils.getResidues(dssp)
     dssp_start = 0
     dssp_end = 0
@@ -123,7 +123,7 @@ def _calc_dssp_hel(dssp, ref):
     return result, n_res
 
 
-def calc_dssp_hel(pdb_file, ref):
+def calc_dssp_hel(pdb_file, ref, chain_id=None):
     """
     Calculates differences with DSSP output.
 
@@ -133,6 +133,8 @@ def calc_dssp_hel(pdb_file, ref):
         Filename of .pdb file used for calculation.
     ref: list of lists (int, int)
         List of amino acid numbers pairs (start, end) for each helix.
+    chain_id: str, default=None
+        Chain identifier. If None, auto-detected by get_model_and_structure.
 
     Returns
     -------
@@ -141,14 +143,14 @@ def calc_dssp_hel(pdb_file, ref):
     but are not considered as a part of helices in our reference.
 
     """
-    _, _, model, _, _ = utils.get_model_and_structure(pdb_file)
+    _, _, model, chain, _ = utils.get_model_and_structure(pdb_file, chain_id=chain_id)
     dssp = PDB.DSSP(model, pdb_file)
     if not isinstance(ref, list):
         if ref is None:
             raise ValueError("Ref list is None!")
         else:
             raise ValueError(f"Unexpected type for ref: {type(ref)}")
-    return _calc_dssp_hel(dssp, ref)
+    return _calc_dssp_hel(dssp, ref, chain_id=chain.id)
 
 
 def dssp_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
@@ -169,6 +171,7 @@ def dssp_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
     pandas.DataFrame with calculated descriptor.
 
     """
+    chain_id = kwargs.get('chain_id', None)
     cols_dssp = (['prot_name']
                  + ['DSSP start_H' + str(elem) for elem in range(1, len(ref)+1)]
                  + ['DSSP end_H' + str(elem) for elem in range(1, len(ref)+1)])
@@ -176,7 +179,7 @@ def dssp_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
     dssp_hels = None
 
     try:
-        dssp_hels = calc_dssp_hel(pdb_file, ref)
+        dssp_hels = calc_dssp_hel(pdb_file, ref, chain_id=chain_id)
     except KeyError:
         if protein_name:
             print(f'{protein_name}: KeyError while calculating dssp')
@@ -226,12 +229,13 @@ def dssp_extra_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
     pandas.DataFrame with calculated descriptor.
 
     """
+    chain_id = kwargs.get('chain_id', None)
     cols_extra_res = ['prot_name', 'N_res extra helical']
     #df_extra = pd.DataFrame(columns=cols_extra_res)
     dssp_hels = None
 
     try:
-        dssp_hels = calc_dssp_hel(pdb_file, ref)
+        dssp_hels = calc_dssp_hel(pdb_file, ref, chain_id=chain_id)
     except KeyError:
         if protein_name:
             print(f'{protein_name}: KeyError while calculating dssp')

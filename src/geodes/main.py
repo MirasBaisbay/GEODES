@@ -11,7 +11,8 @@ class DescCalculator:
         self,
         ref=None,
         clamp_resid=None,
-        config=geodes.constraints.DESCRIPTOR_CONFIG_PATH
+        config=geodes.constraints.DESCRIPTOR_CONFIG_PATH,
+        chain_id=None,
     ):
         """
         Initialize calculator.
@@ -22,9 +23,12 @@ class DescCalculator:
             Charge clamp residues list.
         ref: list of ints, default=None
             List of amino acid numbers pairs (start, end) for each helix.
+        chain_id: str, default=None
+            Chain identifier to use. If None, auto-detects (tries 'A' first).
         """
         self.ref = ref
         self.clamp_resid = clamp_resid
+        self.chain_id = chain_id
         self.config = geodes.utils.load_config(config) if isinstance(config, str) else config
 
     def calc_single_file(
@@ -57,7 +61,8 @@ class DescCalculator:
                     pdb_file=filename,
                     ref=self.ref,
                     clamp_resid=self.clamp_resid,
-                    protein_name=base_filename
+                    protein_name=base_filename,
+                    chain_id=self.chain_id,
                 )
             )
 

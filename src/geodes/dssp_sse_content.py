@@ -30,7 +30,7 @@ def _calc_sse_content(dssp):
     return sse
 
 
-def calc_sse_content(pdb_file):
+def calc_sse_content(pdb_file, chain_id=None):
     """
     Calculation of secondary structure content.
 
@@ -38,13 +38,15 @@ def calc_sse_content(pdb_file):
     ----------
     pdb_file: str
         Filename of .pdb file used for calculation.
+    chain_id: str, default=None
+        Chain identifier. If None, auto-detected.
 
     Returns
     -------
     dict of all possible secondary structures and counting their percentage.
 
     """
-    _, _, model, _, _ = utils.get_model_and_structure(pdb_file)
+    _, _, model, _, _ = utils.get_model_and_structure(pdb_file, chain_id=chain_id)
     dssp = PDB.DSSP(model, pdb_file)
     return _calc_sse_content(dssp)
 
@@ -69,9 +71,10 @@ def sse_content_to_pandas(pdb_file, protein_name=None, **kwargs):
                 'SSE Strand', 'SSE Helix-3', 'SSE Helix-5',
                 'SSE Turn', 'SSE Bend', 'SSE Other']
     #df_sse = pd.DataFrame(columns=cols_sse)
+    chain_id = kwargs.get('chain_id', None)
     sse = None
     try:
-        sse = calc_sse_content(pdb_file)
+        sse = calc_sse_content(pdb_file, chain_id=chain_id)
     except KeyError:
         if protein_name:
             print(f'{protein_name}: KeyError while calculating sse')

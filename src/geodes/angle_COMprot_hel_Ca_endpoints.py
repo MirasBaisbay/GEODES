@@ -40,7 +40,7 @@ def _calc_COM_Calpha_angles(chain, atom_struct, ref):
     return angles
 
 
-def calc_COM_Calpha_angles(pdb_file, ref):
+def calc_COM_Calpha_angles(pdb_file, ref, chain_id=None):
     """
     Calculate angles between protein's center of mass and alpha carbon atom of every helix.
 
@@ -50,13 +50,15 @@ def calc_COM_Calpha_angles(pdb_file, ref):
         Filename of .pdb file used for calculation.
     ref: list of ints
         List of amino acid numbers pairs (start, end) for each helix.
+    chain_id: str, default=None
+        Chain identifier. If None, auto-detected.
 
     Returns
     -------
     list of angles between helices and protein center of mass.
 
     """
-    _, _, _, chain, atom_struct = utils.get_model_and_structure(pdb_file)
+    _, _, _, chain, atom_struct = utils.get_model_and_structure(pdb_file, chain_id=chain_id)
     if not isinstance(ref, list):
         if ref is None:
             raise ValueError("Ref list is None!")
@@ -85,9 +87,10 @@ def COM_Calpha_angles_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
     """
     cols_angle = ['prot_name'] + ['AngleCOM H' + str(elem) for elem in range(1, len(ref)+1)]
     #df_alphaangle = pd.DataFrame(columns=cols_angle)
+    chain_id = kwargs.get('chain_id', None)
     alpha_angle = None
     try:
-        alpha_angle = calc_COM_Calpha_angles(pdb_file, ref)
+        alpha_angle = calc_COM_Calpha_angles(pdb_file, ref, chain_id=chain_id)
     except KeyError:
         if protein_name:
             print(f'{protein_name}: KeyError while calculating alpha angle')

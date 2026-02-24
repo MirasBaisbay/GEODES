@@ -20,7 +20,7 @@ def _calc_prot_hel_dist(chain, atom_struct, ref):
     return prot_hel_dists
 
 
-def calc_prot_hel_dist(pdb_file, ref):
+def calc_prot_hel_dist(pdb_file, ref, chain_id=None):
     """
     Calculate distance between protein's center of mass and between every helix's center of mass.
 
@@ -30,13 +30,15 @@ def calc_prot_hel_dist(pdb_file, ref):
         Filename of .pdb file used for calculation.
     ref: list of ints
         List of amino acid numbers pairs (start, end) for each helix.
+    chain_id: str, default=None
+        Chain identifier. If None, auto-detected.
 
     Returns
     -------
     list of  distances lists between helices and protein center of mass.
 
     """
-    _, _, _, chain, atom_struct = utils.get_model_and_structure(pdb_file)
+    _, _, _, chain, atom_struct = utils.get_model_and_structure(pdb_file, chain_id=chain_id)
 
     if not isinstance(ref, list):
         if ref is None:
@@ -67,10 +69,11 @@ def prot_hel_dist_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
     """
     cols_protheldist = ['prot_name'] + ['Dist prot-H' + str(elem) for elem in range(1, len(ref)+1)]
     #df_prothel = pd.DataFrame(columns=cols_protheldist)
+    chain_id = kwargs.get('chain_id', None)
     prothel = None
 
     try:
-        prothel = calc_prot_hel_dist(pdb_file, ref)
+        prothel = calc_prot_hel_dist(pdb_file, ref, chain_id=chain_id)
     except KeyError:
         if protein_name:
             print(f'{protein_name}: Error while calculating prot-helix distance')

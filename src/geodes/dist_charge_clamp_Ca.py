@@ -30,7 +30,7 @@ def _calc_charge_clamp_dist(chain, charge_clamps):
     return dist
 
 
-def calc_charge_clamp_dist(pdb_file, charge_clamps):
+def calc_charge_clamp_dist(pdb_file, charge_clamps, chain_id=None):
     """
     Calculation of distance between charge clamp residues.
 
@@ -40,6 +40,8 @@ def calc_charge_clamp_dist(pdb_file, charge_clamps):
         Filename of .pdb file used for calculation.
     charge_clamps: list of ints
         Charge clamp residues list.
+    chain_id: str, default=None
+        Chain identifier. If None, auto-detected.
 
     Returns
     -------
@@ -47,7 +49,7 @@ def calc_charge_clamp_dist(pdb_file, charge_clamps):
 
     """
 
-    _, _, _, chain, _ = utils.get_model_and_structure(pdb_file)
+    _, _, _, chain, _ = utils.get_model_and_structure(pdb_file, chain_id=chain_id)
     if not isinstance(charge_clamps, list):
         if charge_clamps is None:
             raise ValueError("Charge clamp residues list is None!")
@@ -76,9 +78,10 @@ def charge_clamp_dist_to_pandas(pdb_file, clamp_resid, protein_name=None, **kwar
     """
     cols_cl_dist = ['prot_name'] + [f'Dist clamp{elem}' for elem in range(1, 4)]
     #df_cl_dist = pd.DataFrame(columns=cols_cl_dist)
+    chain_id = kwargs.get('chain_id', None)
     clamp_dist = None
     try:
-        clamp_dist = calc_charge_clamp_dist(pdb_file, clamp_resid)
+        clamp_dist = calc_charge_clamp_dist(pdb_file, clamp_resid, chain_id=chain_id)
     except KeyError:
         if protein_name:
             print(f'{protein_name}: KeyError while calculating clamp dist')

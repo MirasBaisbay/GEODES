@@ -47,7 +47,7 @@ def _calc_acc_per_hel(dssp, ref):
     return acc
 
 
-def calc_acc_per_hel(pdb_file, ref):
+def calc_acc_per_hel(pdb_file, ref, chain_id=None):
     """
     Calculating of solvent-accessibility area per helix, Å2. Requires DSSP module.
 
@@ -57,12 +57,14 @@ def calc_acc_per_hel(pdb_file, ref):
         Filename of .pdb file used for calculation.
     ref: list of ints
         List of amino acid numbers pairs (start, end) for each helix.
+    chain_id: str, default=None
+        Chain identifier. If None, auto-detected.
     Returns
     -------
     dict with accessibility for every alpha-helix in structure.
 """
 
-    _, _, model, _, _ = utils.get_model_and_structure(pdb_file)
+    _, _, model, _, _ = utils.get_model_and_structure(pdb_file, chain_id=chain_id)
     dssp = PDB.DSSP(model, pdb_file)
     if not isinstance(ref, list):
         if ref is None:
@@ -92,9 +94,10 @@ def acc_per_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
     cols_acc = ['prot_name'] + ['ACC H' + str(elem) for elem in range(1, len(ref)+1)]
     #df_acc = pd.DataFrame(columns=cols_acc)
 
+    chain_id = kwargs.get('chain_id', None)
     acc_hels = None
     try:
-        acc_hels = calc_acc_per_hel(pdb_file, ref)
+        acc_hels = calc_acc_per_hel(pdb_file, ref, chain_id=chain_id)
     except KeyError:
         if protein_name:
             print(f'{protein_name}: KeyError while calculating acc')

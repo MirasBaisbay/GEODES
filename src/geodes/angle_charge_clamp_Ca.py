@@ -33,7 +33,7 @@ def _calc_charge_clamp_angles(chain, charge_clamps):
     return angles
 
 
-def calc_charge_clamp_angles(pdb_file, charge_clamps):
+def calc_charge_clamp_angles(pdb_file, charge_clamps, chain_id=None):
     """
     Calculation of angles between charge clamp residues.
 
@@ -43,6 +43,8 @@ def calc_charge_clamp_angles(pdb_file, charge_clamps):
         Filename of .pdb file used for calculation.
     charge_clamps: list of ints
         Charge clamp residues list.
+    chain_id: str, default=None
+        Chain identifier. If None, auto-detected.
 
     Returns
     -------
@@ -50,7 +52,7 @@ def calc_charge_clamp_angles(pdb_file, charge_clamps):
 
     """
 
-    _, _, _, chain, _ = utils.get_model_and_structure(pdb_file)
+    _, _, _, chain, _ = utils.get_model_and_structure(pdb_file, chain_id=chain_id)
     if not isinstance(charge_clamps, list):
         if charge_clamps is None:
             raise ValueError("Charge clamp residues list is None!")
@@ -79,9 +81,10 @@ def charge_clamp_angles_to_pandas(pdb_file, clamp_resid, protein_name=None, **kw
     """
     cols_cl_angle = ['prot_name'] + [f'Angle clamp{elem}-{el}' for elem in range(1, 3) for el in range(elem+1, 4)]
     #df_cl_angles = pd.DataFrame(columns=cols_cl_angle)
+    chain_id = kwargs.get('chain_id', None)
     clamp_angle = None
     try:
-        clamp_angle = calc_charge_clamp_angles(pdb_file, clamp_resid)
+        clamp_angle = calc_charge_clamp_angles(pdb_file, clamp_resid, chain_id=chain_id)
     except KeyError:
         if protein_name:
             print(f'{protein_name}: KeyError while calculating clamp angle')

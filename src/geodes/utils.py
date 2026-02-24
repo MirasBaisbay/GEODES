@@ -51,7 +51,7 @@ def load_config(config_file):
     return None
 
 
-def get_model_and_structure(pdb_file):
+def get_model_and_structure(pdb_file, chain_id=None):
     """
     Initialize PDB structure.
 
@@ -59,6 +59,9 @@ def get_model_and_structure(pdb_file):
     ----------
     pdb_file: str
         Filename of .pdb file used for calculation.
+    chain_id: str, default=None
+        Chain identifier to use. If None, tries 'A' first then falls back
+        to the first available chain.
 
     Returns
     -------
@@ -68,7 +71,22 @@ def get_model_and_structure(pdb_file):
     p = PDB.PDBParser(QUIET=True)
     structure = p.get_structure('protein', pdb_file)
     model = structure[0]
-    chain = model['A']
+
+    if chain_id is not None:
+        chain = model[chain_id]
+    else:
+        try:
+            chain = model['A']
+        except KeyError:
+            chains = list(model.get_chains())
+            if not chains:
+                raise ValueError(f"No chains found in {pdb_file}")
+            chain = chains[0]
+            logger.warning(
+                f"Chain 'A' not found in {pdb_file}. "
+                f"Using first available chain '{chain.id}' instead."
+            )
+
     atom_struct = structure.get_atoms()
     return p, structure, model, chain, atom_struct
 

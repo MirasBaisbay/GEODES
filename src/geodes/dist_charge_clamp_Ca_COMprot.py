@@ -28,7 +28,7 @@ def _calc_COM_clamp(chain, atom_struct, charge_clamps):
     return ch_clamp_dist
 
 
-def calc_COM_clamp(pdb_file, charge_clamps):
+def calc_COM_clamp(pdb_file, charge_clamps, chain_id=None):
     """
     Calculate distances between protein's center of mass and every charge clamps.
 
@@ -38,13 +38,15 @@ def calc_COM_clamp(pdb_file, charge_clamps):
         Filename of .pdb file used for calculation.
     charge_clamps: list of ints
         Charge clamp residues list.
+    chain_id: str, default=None
+        Chain identifier. If None, auto-detected.
 
     Returns
     -------
     list of distances between protein's center of mass and every charge clamps.
 
     """
-    _, _, _, chain, atom_struct = utils.get_model_and_structure(pdb_file)
+    _, _, _, chain, atom_struct = utils.get_model_and_structure(pdb_file, chain_id=chain_id)
 
     if not isinstance(charge_clamps, list):
         if charge_clamps is None:
@@ -75,10 +77,11 @@ def COM_clamp_to_pandas(pdb_file, clamp_resid, protein_name=None, **kwargs):
     """
     cols_comclampdist = ['prot_name'] + [f'Dist COM-clamp{i}' for i in range(1, 4)]
     #df_clamps = pd.DataFrame(columns=cols_comclampdist)
+    chain_id = kwargs.get('chain_id', None)
     clamps = None
 
     try:
-        clamps = calc_COM_clamp(pdb_file, clamp_resid)
+        clamps = calc_COM_clamp(pdb_file, clamp_resid, chain_id=chain_id)
     except KeyError:
         if protein_name:
             print(f'{protein_name}: KeyError while calculating COM-clamp')

@@ -25,7 +25,7 @@ def _calc_len_of_hel(chain, ref):
     return lens_of_helices
 
 
-def calc_len_of_hel(pdb_file, ref):
+def calc_len_of_hel(pdb_file, ref, chain_id=None):
     """
     Calculation of length of helices from structure.
 
@@ -35,13 +35,15 @@ def calc_len_of_hel(pdb_file, ref):
         Filename of .pdb file used for calculation.
     ref: list of ints
         List of amino acid numbers pairs (start, end) for each helix.
+    chain_id: str, default=None
+        Chain identifier. If None, auto-detected.
 
     Returns
     -------
     list of lengths of helices.
 
     """
-    _, _, _, chain, _ = utils.get_model_and_structure(pdb_file)
+    _, _, _, chain, _ = utils.get_model_and_structure(pdb_file, chain_id=chain_id)
 
     if not isinstance(ref, list):
         if ref is None:
@@ -72,10 +74,11 @@ def len_of_hel_to_pandas(pdb_file, ref, protein_name=None, **kwargs):
     """
     cols_len = ['prot_name'] + [f'Length H{elem}' for elem in range(1, len(ref)+1)]
     #df_len = pd.DataFrame(columns=cols_len)
+    chain_id = kwargs.get('chain_id', None)
     lens_hels = None
 
     try:
-        lens_hels = calc_len_of_hel(pdb_file, ref)
+        lens_hels = calc_len_of_hel(pdb_file, ref, chain_id=chain_id)
     except KeyError:
         if protein_name:
             print(f'{protein_name}: KeyError while calculating len of hel')
