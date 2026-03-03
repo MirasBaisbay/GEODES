@@ -94,6 +94,10 @@ SPECIES_CONFIG = {
     "Zebrafish": {
         "href": [[159,174], [181, 184], [254,274], [285, 293], [295,303], [326, 330], [336,350], [356,366], [378,397], [405,422], [423, 432], [435,439], [443, 447]],
         "clamps": [274, 292, 446]
+    },
+    "Sea_lamprey": {
+       "href": [[5, 21], [27, 31], [33, 35], [82, 101], [111, 130], [131, 133], [146, 148], [162, 178], [182, 193], [204, 225], [231, 262], [271, 277]],
+       "clamps": [101, 119, 275]  
     }
 }
 
@@ -166,7 +170,7 @@ yaml_config = load_default_config()
 # Human    (Homo sapiens)      – 14 helices, charge clamps 246 / 264 / 420
 # Rat      (Rattus norvegicus) – 13 helices, charge clamps 242 / 260 / 416
 # Zebrafish (Danio rerio)      – 13 helices, charge clamps 274 / 292 / 446
-#
+# Sea Lamprey - 12 helices, charge clamps 101 / 119 / 275
 # Workflow
 # --------
 # 1. Upload one or more PDB files via the sidebar (per-species uploaders).
@@ -192,6 +196,10 @@ with st.sidebar:
     uploaded_zebrafish = st.file_uploader(
         "Zebrafish VDR", type=['pdb'], accept_multiple_files=True, key="zebrafish"
     )
+    
+    uploaded_sea_lamprey = st.file_uploader(
+        "Sea_Lamprey VDR", type=['pdb'], accept_multiple_files=True, key="sea_lamprey"
+    )
 
     species_uploads = {}
     if uploaded_human:
@@ -200,6 +208,8 @@ with st.sidebar:
         species_uploads["Rat"] = uploaded_rat
     if uploaded_zebrafish:
         species_uploads["Zebrafish"] = uploaded_zebrafish
+    if uploaded_sea_lamprey:
+        species_uploads["Sea_lamprey"] = uploaded_sea_lamprey
 
 # --- Main UI ---
 if species_uploads:
@@ -942,6 +952,7 @@ The full descriptor matrix is displayed and can be downloaded as a CSV file.
 | **Human** (*Homo sapiens*) | 14 | 246, 264, 420 |
 | **Rat** (*Rattus norvegicus*) | 13 | 242, 260, 416 |
 | **Zebrafish** (*Danio rerio*) | 13 | 274, 292, 446 |
+| **Sea Lamprey** | 12 | 101, 119, 275 |
 
 Upload structures to the corresponding species uploader in the sidebar.
 When multiple species are uploaded, all analyses use species-invariant descriptors
